@@ -1,0 +1,32 @@
+{
+  "entities": {
+    "Mitglieder": {
+      "placeholders_set": 10,
+      "defaults_keys": [
+        "eintrittsdatum",
+        "mitgliedsstatus"
+      ],
+      "computed_keys": [],
+      "reason": "Reine Stammdaten ohne numerische Felder, daher keine Formeln."
+    },
+    "Kurse": {
+      "placeholders_set": 8,
+      "defaults_keys": [
+        "startdatum",
+        "kursstatus"
+      ],
+      "computed_keys": [],
+      "reason": "Keine Formel, da es kein Datumspaar und keine Menge mit Preis über applookup gibt."
+    },
+    "Anmeldungen": {
+      "placeholders_set": 4,
+      "defaults_keys": [
+        "anmeldedatum",
+        "anmeldestatus",
+        "bezahlt"
+      ],
+      "computed_keys": [],
+      "reason": "Keine Formel, da es keine eigenen Mengen- oder Datumspaare gibt und die Kursgebühr nur einmal ohne Multiplikator anfällt."
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "pages": {
+    "en": {
+      "Aktive Mitglieder": "Active members",
+      "Alle Kursgebühren sind bezahlt.": "All course fees are paid.",
+      "Alles erledigt — keine offenen Zahlungen oder Wartelisten.": "All done — no open payments or waitlists.",
+      "Als Nächstes startet {0} am {1}.": "Next up: {0} starts on {1}.",
+      "Als bezahlt markieren": "Mark as paid",
+      "Anmeldung": "Registration",
+      "Anmeldungen pro Kurs": "Registrations per course",
+      "Antippen zum Filtern": "Tap to filter",
+      "Auf der Warteliste: {0}.": "On the waitlist: {0}.",
+      "Bei {0} steht die Kursgebühr noch aus.": "{0} still has an outstanding course fee.",
+      "Bezahlt": "Paid",
+      "Ersten Kurs anlegen": "Create first course",
+      "Freie Plätze": "Available spots",
+      "Gebühr offen": "Fee outstanding",
+      "Kurs": "Course",
+      "Kurs voll": "Course full",
+      "Mitglied": "Member",
+      "Nachrücken": "Promote",
+      "Nachrücken lassen": "Promote from waitlist",
+      "Niemand wartet auf einen Platz.": "Nobody is waiting for a spot.",
+      "Noch kein Kurs vorhanden — lege deinen ersten Kurs an, dann können sich Mitglieder anmelden.": "No courses yet — create your first course so members can register.",
+      "Nur offene Kurse im Kalender": "Only open courses in calendar",
+      "Offene Kurse": "Open courses",
+      "Platz frei": "Spot available",
+      "Unbezahlt": "Unpaid",
+      "Warteliste": "Waitlist",
+      "von {0} Mitgliedern": "of {0} members",
+      "{0} auf Warteliste": "{0} on waitlist",
+      "{0} von {1} Plätzen belegt": "{0} of {1} spots taken",
+      "{0} — als bezahlt markiert": "{0} — marked as paid",
+      "{0} — nachgerückt": "{0} — promoted from waitlist"
+    }
+  },
+  "v": 1
+}

@@ -1,0 +1,181 @@
+{
+  "version": 1,
+  "language": "de",
+  "understanding": {
+    "summary": "Die Anwendung verwaltet einen kleinen Verein: Sie führt die Mitglieder, die angebotenen Kurse und die Anmeldungen der Mitglieder zu den Kursen. So ist jederzeit sichtbar, wer in welchem Kurs angemeldet ist, wer auf der Warteliste steht und wer die Kursgebühr bezahlt hat.",
+    "roles": [
+      "Vereinsvorstand",
+      "Kursverwaltung"
+    ],
+    "main_tasks": [
+      "Mitglieder aufnehmen und pflegen",
+      "Kurse planen und für die Anmeldung öffnen",
+      "Mitglieder zu Kursen anmelden",
+      "Zahlung der Kursgebühr nachhalten"
+    ],
+    "platform_roles": [
+      {
+        "persona": "Vereinsvorstand",
+        "role": "administrator",
+        "apps": [
+          "mitglieder",
+          "kurse",
+          "anmeldungen"
+        ]
+      },
+      {
+        "persona": "Kursverwaltung",
+        "role": "datenverarbeitung",
+        "apps": [
+          "mitglieder",
+          "kurse",
+          "anmeldungen"
+        ]
+      }
+    ]
+  },
+  "flows": [
+    {
+      "slug": "mitglied-zu-kurs-anmelden",
+      "label": {
+        "de": "Mitglied zu Kurs anmelden",
+        "en": "Enroll member in course"
+      },
+      "description": "Ein Mitglied wird für einen offenen Kurs angemeldet. Ist der Kurs voll, kommt die Anmeldung auf die Warteliste.",
+      "priority": "must",
+      "writes": [
+        {
+          "entity": "anmeldungen",
+          "op": "create",
+          "when": "always",
+          "fields": {
+            "mitglied": "picked",
+            "kurs": "picked",
+            "anmeldedatum": "derived:today",
+            "anmeldestatus": "derived:computed:Angemeldet, solange die Zahl der angemeldeten Teilnehmer die maximale Teilnehmerzahl des Kurses nicht erreicht; sonst Warteliste",
+            "bezahlt": "fixed:false",
+            "bemerkung": "user"
+          },
+          "needs": {
+            "anmeldestatus": [
+              "kurs"
+            ]
+          }
+        }
+      ],
+      "required": [
+        "anmeldungen.kurs"
+      ],
+      "brief": "# Flow `mitglied-zu-kurs-anmelden` — Mitglied zu Kurs anmelden\nEin Mitglied wird für einen offenen Kurs angemeldet. Ist der Kurs voll, kommt die Anmeldung auf die Warteliste.\n\n## Your hook — import it, never rebuild what it owns\n`import { useMitgliedZuKursAnmeldenFlow } from '@/lib/journey/flows/MitgliedZuKursAnmelden';` — generated from the Schreibliste below. It OWNS the form(s), one record search per picked field (columns and filter from the plan) and the submit plan with every fixed and derived value. You compose: `flow.forms.<entity>` for <Bound>/<Field>, `{...flow.picks.<field>.select} {...flow.pick('<field>')}` (or `flow.pickMany` for a multi pick) for <EntitySelectStep>, `flow.validateStep(n)` in StepNav.onNext, `flow.submit` + `flow.formList` for SummaryStep/SuccessStep, `flow.reset()`; what the hook does not own reads through its door `flow.port` — availability `useOccupancy(flow.port, '<entity>', { resource })`, a count `useRecordCount(flow.port, …)` — never import servicePort next to the hook. Options: `steps` (field → step), `items` (how a hit reads, per pick: mitglied, kurs), `initial`, `messages`, and `compute` — REQUIRED, the plan leaves these rules to you: anmeldestatus. The hook's docblock in .lane-context.md shows the exact call. Never import servicePort, useStepForm, useJourneySubmit, useRecordSearch or useDashboardData in this page — check-intents refuses a page that uses the hook and any of them.\n\n## Steps (in this order)\n1. Mitglied aus den aktiven Mitgliedern auswählen\n2. Offenen Kurs auswählen\n3. Prüfen, ob das Mitglied schon für den Kurs angemeldet ist\n4. Anmeldung speichern; bei vollem Kurs auf die Warteliste setzen\n\n## Schreibliste — the ONLY writes this flow makes (the gate compares your plan steps with this list)\n- creates `anmeldungen`:\n    - `mitglied`: from the record the user picks in this flow\n    - `kurs`: from the record the user picks in this flow — **REQUIRED in this flow** (mark it required and validate it before the step advances, whatever the app's base view says): intent `mitglied-zu-kurs-anmelden` → `anmeldestatus` cannot be built without it\n    - `anmeldedatum`: derived: today() — set it in the plan step, never ask\n    - `anmeldestatus`: derived (computed)\n    - `bezahlt`: fixed value `false` — set it in the plan step's values, never ask\n    - `bemerkung`: the user enters it (bind it through the layer: form.field/…)\n\n## Reads\n- `mitglieder` columns vorname, nachname, email, mitgliedsstatus\n- `kurse` columns kursname, startdatum, kursort, max_teilnehmer, kursgebuehr, kursstatus\n\n## Checks BEFORE the write (block the submit with the message when they fail)\n- unique (field=`anmeldungen.kurs`) — message: „Dieses Mitglied ist für den Kurs bereits angemeldet.“\n\n## Success page\n- shows: `anmeldungen.anmeldestatus`, `anmeldungen.kurs`\n- next flows to offer: `zahlung-erfassen`\n\n## Never write these — another flow or a tool owns them\n- `kurse.kursstatus` (owner: tool `kurs-abschliessen`)\n"
+    },
+    {
+      "slug": "zahlung-erfassen",
+      "label": {
+        "de": "Zahlung erfassen",
+        "en": "Record payment"
+      },
+      "description": "Für eine Anmeldung wird der Eingang der Kursgebühr vermerkt.",
+      "priority": "must",
+      "writes": [
+        {
+          "entity": "anmeldungen",
+          "op": "update",
+          "when": "always",
+          "fields": {
+            "bezahlt": "fixed:true",
+            "bemerkung": "user"
+          },
+          "needs": {}
+        }
+      ],
+      "required": [],
+      "brief": "# Flow `zahlung-erfassen` — Zahlung erfassen\nFür eine Anmeldung wird der Eingang der Kursgebühr vermerkt.\n\n## Your hook — import it, never rebuild what it owns\n`import { useZahlungErfassenFlow } from '@/lib/journey/flows/ZahlungErfassen';` — generated from the Schreibliste below. It OWNS the form(s), one record search per picked field (columns and filter from the plan) and the submit plan with every fixed and derived value. You compose: `flow.forms.<entity>` for <Bound>/<Field>, `{...flow.picks.<field>.select} {...flow.pick('<field>')}` (or `flow.pickMany` for a multi pick) for <EntitySelectStep>, `flow.validateStep(n)` in StepNav.onNext, `flow.submit` + `flow.formList` for SummaryStep/SuccessStep, `flow.reset()`; what the hook does not own reads through its door `flow.port` — availability `useOccupancy(flow.port, '<entity>', { resource })`, a count `useRecordCount(flow.port, …)` — never import servicePort next to the hook. Options: `steps` (field → step), `items` (how a hit reads, per pick), `initial`, `messages`. The hook's docblock in .lane-context.md shows the exact call. This flow CHANGES a record of `anmeldungen`: `{...flow.picks.anmeldungen.select} {...flow.pick('anmeldungen')}` picks it, the hook prefills the form with its current values and updates THAT record — never a create step, never a list from useDashboardData. Never import servicePort, useStepForm, useJourneySubmit, useRecordSearch or useDashboardData in this page — check-intents refuses a page that uses the hook and any of them.\n\n## Steps (in this order)\n1. Anmeldung mit unbezahlter Kursgebühr auswählen\n2. Zahlung bestätigen und speichern\n\n## Schreibliste — the ONLY writes this flow makes (the gate compares your plan steps with this list)\n- updates `anmeldungen`:\n    - `bezahlt`: fixed value `true` — set it in the plan step's values, never ask\n    - `bemerkung`: the user enters it (bind it through the layer: form.field/…)\n\n## Reads\n- `anmeldungen` columns mitglied, kurs, anmeldedatum, anmeldestatus, bezahlt\n\n## Success page\n- shows: `anmeldungen.bezahlt`\n\n## Never write these — another flow or a tool owns them\n- `anmeldungen.mitglied` (owner: intent `mitglied-zu-kurs-anmelden`)\n- `anmeldungen.kurs` (owner: intent `mitglied-zu-kurs-anmelden`)\n- `anmeldungen.anmeldedatum` (owner: intent `mitglied-zu-kurs-anmelden`)\n- `anmeldungen.anmeldestatus` (owner: intent `mitglied-zu-kurs-anmelden`)\n- `kurse.kursstatus` (owner: tool `kurs-abschliessen`)\n"
+    },
+    {
+      "slug": "anmeldung-stornieren",
+      "label": {
+        "de": "Anmeldung stornieren",
+        "en": "Cancel enrollment"
+      },
+      "description": "Eine Anmeldung wird storniert; der erste Platz auf der Warteliste des Kurses kann danach nachrücken.",
+      "priority": "nice",
+      "writes": [
+        {
+          "entity": "anmeldungen",
+          "op": "update",
+          "when": "always",
+          "fields": {
+            "anmeldestatus": "fixed:storniert"
+          },
+          "needs": {}
+        },
+        {
+          "entity": "anmeldungen",
+          "op": "update",
+          "when": "optional",
+          "fields": {
+            "anmeldestatus": "fixed:angemeldet"
+          },
+          "needs": {}
+        }
+      ],
+      "required": [],
+      "brief": "# Flow `anmeldung-stornieren` — Anmeldung stornieren\nEine Anmeldung wird storniert; der erste Platz auf der Warteliste des Kurses kann danach nachrücken.\n\n## Your hook — import it, never rebuild what it owns\n`import { useAnmeldungStornierenFlow } from '@/lib/journey/flows/AnmeldungStornieren';` — generated from the Schreibliste below. It OWNS the form(s), one record search per picked field (columns and filter from the plan) and the submit plan with every fixed and derived value. You compose: `flow.forms.<entity>` for <Bound>/<Field>, `{...flow.picks.<field>.select} {...flow.pick('<field>')}` (or `flow.pickMany` for a multi pick) for <EntitySelectStep>, `flow.validateStep(n)` in StepNav.onNext, `flow.submit` + `flow.formList` for SummaryStep/SuccessStep, `flow.reset()`; what the hook does not own reads through its door `flow.port` — availability `useOccupancy(flow.port, '<entity>', { resource })`, a count `useRecordCount(flow.port, …)` — never import servicePort next to the hook. Options: `steps` (field → step), `items` (how a hit reads, per pick), `initial`, `messages`. The hook's docblock in .lane-context.md shows the exact call. This flow CHANGES a record of `anmeldungen`: `{...flow.picks.anmeldungen.select} {...flow.pick('anmeldungen')}` picks it, the hook prefills the form with its current values and updates THAT record — never a create step, never a list from useDashboardData. This flow CHANGES a record of `anmeldungen`: `{...flow.picks.anmeldungen.select} {...flow.pick('anmeldungen')}` picks it, the hook prefills the form with its current values and updates THAT record — never a create step, never a list from useDashboardData. Never import servicePort, useStepForm, useJourneySubmit, useRecordSearch or useDashboardData in this page — check-intents refuses a page that uses the hook and any of them.\n\n## Steps (in this order)\n1. Anmeldung auswählen\n2. Stornierung bestätigen\n3. Nächste Anmeldung von der Warteliste auf Angemeldet setzen\n\n## Schreibliste — the ONLY writes this flow makes (the gate compares your plan steps with this list)\n- updates `anmeldungen`:\n    - `anmeldestatus`: fixed value `storniert` — set it in the plan step's values, never ask\n- updates `anmeldungen` (only when the flow needs it):\n    - `anmeldestatus`: fixed value `angemeldet` — set it in the plan step's values, never ask\n\n## Reads\n- `anmeldungen` columns mitglied, kurs, anmeldedatum, anmeldestatus\n\n## Success page\n- shows: `anmeldungen.anmeldestatus`\n\n## Never write these — another flow or a tool owns them\n- `anmeldungen.mitglied` (owner: intent `mitglied-zu-kurs-anmelden`)\n- `anmeldungen.kurs` (owner: intent `mitglied-zu-kurs-anmelden`)\n- `anmeldungen.anmeldedatum` (owner: intent `mitglied-zu-kurs-anmelden`)\n- `anmeldungen.bezahlt` (owner: intent `mitglied-zu-kurs-anmelden`)\n- `anmeldungen.bemerkung` (owner: intent `mitglied-zu-kurs-anmelden`)\n- `kurse.kursstatus` (owner: tool `kurs-abschliessen`)\n"
+    }
+  ],
+  "public_pages": [],
+  "tools": [
+    {
+      "id": "kurs-abschliessen",
+      "purpose": "Läuft täglich und setzt Kurse, die offen sind und deren Beginn in der Vergangenheit liegt, auf Abgeschlossen."
+    }
+  ],
+  "covered_by_platform": [
+    {
+      "wish": "Mitglieder verwalten",
+      "feature": "record_form"
+    },
+    {
+      "wish": "Mitgliederliste durchsuchen und sortieren",
+      "feature": "search_filter"
+    },
+    {
+      "wish": "Übersicht der Anmeldungen pro Kurs oder Status",
+      "feature": "distribution_view"
+    },
+    {
+      "wish": "Mitglieder- oder Teilnehmerliste als Tabelle",
+      "feature": "csv_json_export"
+    },
+    {
+      "wish": "Zugriff für Vorstand und Kursleitung",
+      "feature": "user_roles"
+    }
+  ],
+  "ownership": {
+    "anmeldungen": {
+      "mitglied": "intent:mitglied-zu-kurs-anmelden",
+      "kurs": "intent:mitglied-zu-kurs-anmelden",
+      "anmeldedatum": "intent:mitglied-zu-kurs-anmelden",
+      "anmeldestatus": "intent:anmeldung-stornieren",
+      "bezahlt": "intent:zahlung-erfassen",
+      "bemerkung": "intent:zahlung-erfassen"
+    },
+    "kurse": {
+      "kursstatus": "tool:kurs-abschliessen"
+    }
+  },
+  "dashboard": {
+    "focus": [
+      "Offene Kurse und ihre Anmeldungen",
+      "Anmeldungen auf der Warteliste",
+      "Anmeldungen mit unbezahlter Kursgebühr",
+      "Aktive Mitglieder"
+    ],
+    "hints": [
+      "Anmeldungen nach Kurs und Status zählen",
+      "Kurse nach Beginn sortiert zeigen"
+    ],
+    "wishes": []
+  }
+}

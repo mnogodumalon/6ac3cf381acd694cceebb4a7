@@ -1,0 +1,30 @@
+{
+  "MitgliederDialog.tsx": {
+    "vorname": "z. B. Anna",
+    "nachname": "z. B. Müller",
+    "geburtsdatum": "Wann wurde das Mitglied geboren?",
+    "email": "z. B. anna@beispiel.de",
+    "strasse": "z. B. Hauptstraße",
+    "hausnummer": "z. B. 12a",
+    "plz": "z. B. 80331",
+    "ort": "z. B. München",
+    "eintrittsdatum": "Wann ist das Mitglied eingetreten?",
+    "bemerkung": "Notizen zum Mitglied"
+  },
+  "KurseDialog.tsx": {
+    "kursname": "z. B. Yoga für Anfänger",
+    "beschreibung": "Worum geht es im Kurs?",
+    "kursleiter_vorname": "z. B. Anna",
+    "kursleiter_nachname": "z. B. Müller",
+    "startdatum": "Wann beginnt der Kurs?",
+    "kursort": "z. B. Vereinsheim",
+    "max_teilnehmer": "z. B. 15",
+    "kursgebuehr": "z. B. 49"
+  },
+  "AnmeldungenDialog.tsx": {
+    "mitglied": "Welches Mitglied?",
+    "kurs": "Welcher Kurs?",
+    "anmeldedatum": "Wann war die Anmeldung?",
+    "bemerkung": "Besonderheiten zur Anmeldung"
+  }
+}
