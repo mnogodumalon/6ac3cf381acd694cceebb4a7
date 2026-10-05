@@ -20,6 +20,7 @@
 import type { ComponentType } from 'react';
 
 // <custom:intent-imports>
+import { IconUserPlus, IconCash, IconUserMinus } from '@tabler/icons-react';
 // </custom:intent-imports>
 
 export interface IntentLink {
@@ -42,6 +43,9 @@ export interface IntentLink {
 
 export const INTENTS: IntentLink[] = [
   // <custom:intents>
+  { path: '/intents/mitglied-zu-kurs-anmelden', label: { de: 'Mitglied zu Kurs anmelden', en: 'Enroll member in course' }, icon: IconUserPlus, description: 'Ein Mitglied für einen offenen Kurs anmelden, bei vollem Kurs auf die Warteliste' },
+  { path: '/intents/zahlung-erfassen', label: { de: 'Zahlung erfassen', en: 'Record payment' }, icon: IconCash, description: 'Für eine Anmeldung den Eingang der Kursgebühr vermerken' },
+  { path: '/intents/anmeldung-stornieren', label: { de: 'Anmeldung stornieren', en: 'Cancel enrollment' }, icon: IconUserMinus, description: 'Eine Anmeldung stornieren, der erste Wartelistenplatz kann nachrücken' },
   // </custom:intents>
 ];
 
@@ -52,7 +56,7 @@ export const INTENTS: IntentLink[] = [
  * purpose — a scaffold update resets it to false (self-healing if Phase 2
  * never ran).
  */
-export const INTENTS_PENDING = true;
+export const INTENTS_PENDING = false;
 
 /**
  * When the Phase-1 bundle was deployed (ISO, set by the service together with
